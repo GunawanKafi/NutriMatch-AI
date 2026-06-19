@@ -11,24 +11,32 @@ warnings.filterwarnings('ignore')
 print("--- Memulai Fase 2: Pra-pemrosesan Data ---")
 
 # 1. Memuat Dataset Baru (Perhatikan pemisahnya sekarang menggunakan titik koma ';')
-df = pd.read_csv('data_gizi_golongan_darah_lengkap3.csv', sep=';')
+df = pd.read_csv('data_gizi_bilingual.csv', sep=';')
 df.columns = df.columns.str.strip()
 
-# 2. Teknik Melting: Meratakan 4 kolom skor menjadi baris
+# 2. Teknik Melting
 df_melted = pd.melt(df, 
                     id_vars=['Nama_Pangan', 'Serat_g', 'Vitamin_C_mg', 'Vitamin_A_IU', 'Jenis', 'Target_Pencegahan'],
                     value_vars=['Skor_A', 'Skor_B', 'Skor_O', 'Skor_AB'],
                     var_name='Golongan_Darah', 
                     value_name='Skor')
 
-# Membersihkan kata "Skor_" agar hanya menyisakan "A", "B", "O", "AB"
 df_melted['Golongan_Darah'] = df_melted['Golongan_Darah'].str.replace('Skor_', '')
+
+# --- TAMBAHAN PENTING UNTUK BILINGUAL ---
+# Menstandarkan teks agar model ML menyatukan konsep 'Fruit' dan 'Buah'
+pemetaan_jenis = {
+    'Buah': 'Buah', 'Sayur': 'Sayur', 
+    'Fruit': 'Buah', 'Vegetable': 'Sayur'
+}
+df_melted['Jenis_Standard'] = df_melted['Jenis'].map(pemetaan_jenis)
 
 # 3. Proses Encoding untuk teks
 le_jenis = LabelEncoder()
 le_darah = LabelEncoder()
 
-df_melted['Jenis_Encoded'] = le_jenis.fit_transform(df_melted['Jenis'])
+# PENTING: Latih encoder menggunakan Jenis_Standard, bukan Jenis asli
+df_melted['Jenis_Encoded'] = le_jenis.fit_transform(df_melted['Jenis_Standard'])
 df_melted['Golongan_Darah_Encoded'] = le_darah.fit_transform(df_melted['Golongan_Darah'])
 
 # 4. Standard Scaler untuk data numerik (Gizi)
