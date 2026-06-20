@@ -40,7 +40,7 @@ else:
         "lang_code": "English"
     }
 
-st.title(teks["judul"])
+st.title(teks["judul"], anchor=False)
 st.warning(teks["penafian"])
 st.markdown("---")
 
@@ -62,7 +62,7 @@ df_aktif = df_full[df_full['Bahasa'] == teks["lang_code"]]
 semua_penyakit = df_aktif['Target_Pencegahan'].str.split(',').explode().str.strip().unique()
 semua_penyakit = sorted(semua_penyakit) 
 
-st.subheader(teks["subheader_input"])
+st.subheader(teks["subheader_input"], anchor=False)
 
 col1, col2 = st.columns(2)
 with col1:
@@ -107,7 +107,7 @@ if st.button(teks["tombol_cari"], type="primary"):
             if prediksi == 1:
                 hasil_rekomendasi.append(row['Nama_Pangan'])
         
-        st.subheader(teks["subheader_hasil"])
+        st.subheader(teks["subheader_hasil"], anchor=False)
         if len(hasil_rekomendasi) > 0:
             st.success(teks["sukses_ditemukan"].format(jumlah=len(hasil_rekomendasi), jenis=jenis_input.lower()))
             
