@@ -154,6 +154,57 @@ if st.button(teks["tombol_cari"], type="primary"):
             
             # Menghilangkan indeks baris (angka 0, 1, 2 di sebelah kiri) agar lebih bersih
             st.table(df_hasil.assign(Index='').set_index('Index'))
+            st.markdown("---")
             
+            # 1. Menentukan judul grafik berdasarkan bahasa
+            if bahasa == "Indonesia":
+                st.subheader("📊 Perbandingan Gizi Makanan yang Direkomendasikan", anchor=False)
+            else:
+                st.subheader("📊 Nutritional Comparison of Recommended Foods", anchor=False)
+                
+            # 2. Mengambil data nutrisi mentah dari dataframe asli khusus untuk makanan yang direkomendasikan
+            df_visual = df_aktif[df_aktif['Nama_Pangan'].isin(hasil_rekomendasi)].copy()
+            
+            # 3. Menyiapkan label kolom berdasarkan bahasa agar rapi di grafik
+            if bahasa == "Indonesia":
+                df_visual = df_visual.rename(columns={
+                    'Nama_Pangan': 'Nama Pangan',
+                    'Serat_g': 'Serat (g)', 
+                    'Vitamin_C_mg': 'Vitamin C (mg)', 
+                    'Vitamin_A_IU': 'Vitamin A (IU)'
+                })
+                kolom_nutrisi = ['Serat (g)', 'Vitamin C (mg)', 'Vitamin A (IU)']
+                kolom_index = 'Nama Pangan'
+            else:
+                df_visual = df_visual.rename(columns={
+                    'Nama_Pangan': 'Food Name',
+                    'Serat_g': 'Fiber (g)', 
+                    'Vitamin_C_mg': 'Vitamin C (mg)', 
+                    'Vitamin_A_IU': 'Vitamin A (IU)'
+                })
+                kolom_nutrisi = ['Fiber (g)', 'Vitamin C (mg)', 'Vitamin A (IU)']
+                kolom_index = 'Food Name'
+            
+            # 4. Menyaring hanya kolom yang dibutuhkan dan mengatur index untuk grafik
+            df_visual = df_visual[[kolom_index] + kolom_nutrisi]
+            df_visual.set_index(kolom_index, inplace=True)
+            
+            # 5. Merender grafik batang secara terpisah menggunakan Tabs
+            if bahasa == "Indonesia":
+                tab1, tab2, tab3 = st.tabs(["Serat (g)", "Vitamin C (mg)", "Vitamin A (IU)"])
+                with tab1:
+                    st.bar_chart(df_visual[['Serat (g)']])
+                with tab2:
+                    st.bar_chart(df_visual[['Vitamin C (mg)']])
+                with tab3:
+                    st.bar_chart(df_visual[['Vitamin A (IU)']])
+            else:
+                tab1, tab2, tab3 = st.tabs(["Fiber (g)", "Vitamin C (mg)", "Vitamin A (IU)"])
+                with tab1:
+                    st.bar_chart(df_visual[['Fiber (g)']])
+                with tab2:
+                    st.bar_chart(df_visual[['Vitamin C (mg)']])
+                with tab3:
+                    st.bar_chart(df_visual[['Vitamin A (IU)']])
         else:
             st.warning(teks["peringatan_blokir"])
